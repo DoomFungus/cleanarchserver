@@ -1,0 +1,50 @@
+package kpi.cleanarch.cleanarchserver.service.impl;
+
+import kpi.cleanarch.cleanarchserver.dao.GameRepository;
+import kpi.cleanarch.cleanarchserver.model.Game;
+import kpi.cleanarch.cleanarchserver.service.GameService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
+@Service
+public class GameServiceImpl implements GameService {
+    private GameRepository gameRepository;
+
+    private LinkedBlockingQueue<Integer> waitingPlayers;
+
+    private AtomicInteger gameIdSequence;
+
+    @Autowired
+    public GameServiceImpl(GameRepository gameRepository) {
+        this.gameRepository = gameRepository;
+        waitingPlayers = new LinkedBlockingQueue<>();
+    }
+
+    public Optional<Game> findGame(int userId){
+        Game game = null;
+        Optional<Integer> opponentId = findOpponent(userId);
+        if(opponentId.isPresent()){
+            game = new Game(gameIdSequence.incrementAndGet(), userId, opponentId.get());
+            gameRepository.add(game);
+        }
+        return Optional.of(game);
+    }
+
+    private Optional<Integer> findOpponent(int userId){
+        Integer result = null;
+        if (waitingPlayers.isEmpty()) waitingPlayers.offer(userId);
+        else {
+            try {
+                 result = waitingPlayers.take();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return Optional.of(result);
+    }
+
+}
