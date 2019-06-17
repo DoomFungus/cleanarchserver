@@ -6,6 +6,7 @@ import kpi.cleanarch.cleanarchserver.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GameServiceImpl implements GameService {
     private GameRepository gameRepository;
 
-    private LinkedBlockingQueue<Integer> waitingPlayers;
+    private LinkedBlockingQueue<Principal> waitingPlayers;
 
     private AtomicInteger gameIdSequence;
 
@@ -24,19 +25,19 @@ public class GameServiceImpl implements GameService {
         waitingPlayers = new LinkedBlockingQueue<>();
     }
 
-    public Optional<Game> findGame(int userId){
+    public Optional<Game> findGame(Principal user){
         Game game = null;
-        Optional<Integer> opponentId = findOpponent(userId);
-        if(opponentId.isPresent()){
-            game = new Game(gameIdSequence.incrementAndGet(), userId, opponentId.get());
+        Optional<Principal> opponent = findOpponent(user);
+        if(opponent.isPresent()){
+            game = new Game(gameIdSequence.incrementAndGet(), user, opponent.get());
             gameRepository.add(game);
         }
         return Optional.of(game);
     }
 
-    private Optional<Integer> findOpponent(int userId){
-        Integer result = null;
-        if (waitingPlayers.isEmpty()) waitingPlayers.offer(userId);
+    private Optional<Principal> findOpponent(Principal user){
+        Principal result = null;
+        if (waitingPlayers.isEmpty()) waitingPlayers.offer(user);
         else {
             try {
                  result = waitingPlayers.take();
