@@ -1,9 +1,11 @@
-package kpi.cleanarch.cleanarchserver.dao;
+package kpi.cleanarch.cleanarchserver.repository;
 
 import kpi.cleanarch.cleanarchserver.model.Game;
 
+import java.util.Optional;
+
 public interface GameRepository {
-    Game getById(int id);
+    Optional<Game> getById(int id);
 
     void add(Game item);
 

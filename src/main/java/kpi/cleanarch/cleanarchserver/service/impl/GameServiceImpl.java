@@ -1,6 +1,6 @@
 package kpi.cleanarch.cleanarchserver.service.impl;
 
-import kpi.cleanarch.cleanarchserver.dao.GameRepository;
+import kpi.cleanarch.cleanarchserver.repository.GameRepository;
 import kpi.cleanarch.cleanarchserver.model.Game;
 import kpi.cleanarch.cleanarchserver.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,20 +1,21 @@
-package kpi.cleanarch.cleanarchserver.dao.impl;
+package kpi.cleanarch.cleanarchserver.repository.impl;
 
-import kpi.cleanarch.cleanarchserver.dao.GameRepository;
+import kpi.cleanarch.cleanarchserver.repository.GameRepository;
 import kpi.cleanarch.cleanarchserver.model.Game;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 @Scope("singleton")
 public class GameRepositoryHashMap implements GameRepository {
-    private ConcurrentHashMap<Integer, Game> games;
+    private static ConcurrentHashMap<Integer, Game> games = new ConcurrentHashMap<>();
 
     @Override
-    public Game getById(int id) {
-        return games.get(id);
+    public Optional<Game> getById(int id) {
+        return Optional.of(games.get(id));
     }
 
     @Override
