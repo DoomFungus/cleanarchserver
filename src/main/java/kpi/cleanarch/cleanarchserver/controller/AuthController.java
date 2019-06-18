@@ -1,7 +1,7 @@
 package kpi.cleanarch.cleanarchserver.controller;
 
+import kpi.cleanarch.cleanarchserver.messages.SignInResponse;
 import kpi.cleanarch.cleanarchserver.service.AuthService;
-import kpi.cleanarch.cleanarchserver.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,11 +20,7 @@ public class AuthController {
     }
 
     @PostMapping("signin")
-    public String getUsername(){
-        return authService.signIn();
+    public SignInResponse getUsername(){
+        return new SignInResponse(authService.signIn());
     }
-
-    @GetMapping("test")
-    @PreAuthorize("isAuthenticated()")
-    public String test(Principal principal){return "Hello"+principal.toString();}
 }

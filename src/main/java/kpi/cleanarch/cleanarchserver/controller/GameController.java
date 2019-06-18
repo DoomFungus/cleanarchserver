@@ -1,5 +1,9 @@
 package kpi.cleanarch.cleanarchserver.controller;
 
+import kpi.cleanarch.cleanarchserver.messages.FindGameRequest;
+import kpi.cleanarch.cleanarchserver.messages.FindGameResponse;
+import kpi.cleanarch.cleanarchserver.model.User;
+import kpi.cleanarch.cleanarchserver.security.JwtProvider;
 import kpi.cleanarch.cleanarchserver.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -11,20 +15,26 @@ import java.security.Principal;
 @Controller
 @MessageMapping(value = "/game")
 public class GameController {
+    private JwtProvider jwtProvider;
     private GameService service;
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public GameController(GameService service, SimpMessagingTemplate simpMessagingTemplate) {
+    public GameController(JwtProvider jwtProvider, GameService service, SimpMessagingTemplate simpMessagingTemplate) {
+        this.jwtProvider = jwtProvider;
         this.service = service;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @MessageMapping(value = "/start")
-    public void findGame(Principal principal){
-        simpMessagingTemplate.convertAndSendToUser(principal.getName(), "user/queue/game", principal.getName());
-//        service.findGame(principal).ifPresent(x -> {
-//
-//        });
+    public void findGame(FindGameRequest request){
+        service.findGame(request.getUsername()).ifPresent(x -> {
+            FindGameResponse response = new FindGameResponse();
+            response.setResponse(x.GameId.toString());
+            simpMessagingTemplate.convertAndSendToUser(x.User1,
+                    "queue/game", response);
+            simpMessagingTemplate.convertAndSendToUser(x.User2,
+                    "queue/game", response);
+        });
     }
 }

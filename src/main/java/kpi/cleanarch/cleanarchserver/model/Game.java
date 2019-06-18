@@ -2,11 +2,9 @@ package kpi.cleanarch.cleanarchserver.model;
 
 import lombok.AllArgsConstructor;
 
-import java.security.Principal;
-
 @AllArgsConstructor
 public class Game {
-    public final int GameId;
-    public final Principal User1;
-    public final Principal User2;
+    public final Integer GameId;
+    public final String User1;
+    public final String User2;
 }

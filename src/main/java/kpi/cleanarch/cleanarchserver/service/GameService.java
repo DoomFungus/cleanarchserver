@@ -6,5 +6,5 @@ import java.security.Principal;
 import java.util.Optional;
 
 public interface GameService {
-    Optional<Game> findGame(Principal user);
+    Optional<Game> findGame(String user);
 }

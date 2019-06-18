@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GameServiceImpl implements GameService {
     private GameRepository gameRepository;
 
-    private LinkedBlockingQueue<Principal> waitingPlayers;
+    private LinkedBlockingQueue<String> waitingPlayers;
 
     private AtomicInteger gameIdSequence;
 
@@ -23,20 +23,21 @@ public class GameServiceImpl implements GameService {
     public GameServiceImpl(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
         waitingPlayers = new LinkedBlockingQueue<>();
+        gameIdSequence = new AtomicInteger(-1);
     }
 
-    public Optional<Game> findGame(Principal user){
+    public Optional<Game> findGame(String user){
         Game game = null;
-        Optional<Principal> opponent = findOpponent(user);
+        Optional<String> opponent = findOpponent(user);
         if(opponent.isPresent()){
             game = new Game(gameIdSequence.incrementAndGet(), user, opponent.get());
             gameRepository.add(game);
         }
-        return Optional.of(game);
+        return Optional.ofNullable(game);
     }
 
-    private Optional<Principal> findOpponent(Principal user){
-        Principal result = null;
+    private Optional<String> findOpponent(String user){
+        String result = null;
         if (waitingPlayers.isEmpty()) waitingPlayers.offer(user);
         else {
             try {
@@ -45,7 +46,7 @@ public class GameServiceImpl implements GameService {
                 e.printStackTrace();
             }
         }
-        return Optional.of(result);
+        return Optional.ofNullable(result);
     }
 
 }
