@@ -1,5 +1,4 @@
 var stompClient = null;
-var jwt = null;
 var username = "";
 
 function setConnected(connected) {
@@ -15,14 +14,14 @@ function setConnected(connected) {
 }
 
 function connect() {
-	fetch('http://localhost:80/signin', {
+	fetch('https://cleanarchserver.herokuapp.com/signin', {
 		method: 'POST'}
 		)
         .then(function (response) { return response.json() })
         .then(function (data){ return parseJwt(data.token)})
         .then(function (value) { return value.sub })
         .then(function (value) {
-            var socket = new SockJS('http://localhost:80/stomp');
+            var socket = new SockJS('https://cleanarchserver.herokuapp.com/stomp');
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 setConnected(true);
