@@ -6,5 +6,7 @@ import lombok.Data;
 @Data
 public class FindGameResponse {
     @JsonProperty("response")
-    private String response;
+    private final Integer response;
+    @JsonProperty("turn_order")
+    private final Integer turnOrder;
 }
