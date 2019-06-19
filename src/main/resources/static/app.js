@@ -1,6 +1,4 @@
 var stompClient = null;
-var jwt = null;
-var username = "";
 
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
@@ -19,17 +17,14 @@ function connect() {
 		method: 'POST'}
 		)
         .then(function (response) { return response.json() })
-        .then(function (data){ return parseJwt(data.token)})
-        .then(function (value) { return value.sub })
-        .then(function (value) {
-            var socket = new SockJS('http://localhost:80/stomp');
+        .then(function (data){
+            var socket = new SockJS('http://localhost:80/stomp?token='+data.token);
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 setConnected(true);
                 console.log('Connected: ' + frame);
                 console.log(stompClient.ws._transport.url);
-                username = value;
-                stompClient.subscribe('/user/'+value+'/queue/game', function (game) {
+                stompClient.subscribe('/user/'+parseJwt(data.token).sub+'/queue/game', function (game) {
                     alert((JSON.parse(game.body)).response);
                 });
             })
@@ -45,10 +40,11 @@ function disconnect() {
 }
 
 function sendStart() {
-    stompClient.send("/app/game/start", {}, JSON.stringify({username:username}));
+    stompClient.send("/app/game/start", {}, {});
 }
 
 function parseJwt (token) {
+    console.log(token.toString());
     var base64Url = token.split('.')[1];
     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {

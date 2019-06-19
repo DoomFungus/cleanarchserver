@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface GameService {
     Optional<Game> findGame(String user);
+
+    void removeUserFromQueueIfExists(String username);
 }

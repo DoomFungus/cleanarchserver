@@ -49,4 +49,8 @@ public class GameServiceImpl implements GameService {
         return Optional.ofNullable(result);
     }
 
+    @Override
+    public void removeUserFromQueueIfExists(String username) {
+        waitingPlayers.remove(username);
+    }
 }
