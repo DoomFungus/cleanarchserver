@@ -7,7 +7,7 @@ import java.security.Principal;
 import java.util.Optional;
 
 public interface GameService {
-    Optional<Game> findGame(String user);
+    Optional<Game> findGame(String user, Integer gameType);
 
     void removeUserFromQueueIfExists(String username);
 

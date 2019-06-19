@@ -1,5 +1,6 @@
 package kpi.cleanarch.cleanarchserver.controller;
 
+import kpi.cleanarch.cleanarchserver.messages.FindGameRequest;
 import kpi.cleanarch.cleanarchserver.messages.FindGameResponse;
 import kpi.cleanarch.cleanarchserver.messages.TurnMessage;
 import kpi.cleanarch.cleanarchserver.security.JwtProvider;
@@ -15,20 +16,18 @@ import java.util.Optional;
 @Controller
 @MessageMapping(value = "/game")
 public class GameController {
-    private JwtProvider jwtProvider;
     private GameService service;
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public GameController(JwtProvider jwtProvider, GameService service, SimpMessagingTemplate simpMessagingTemplate) {
-        this.jwtProvider = jwtProvider;
+    public GameController(GameService service, SimpMessagingTemplate simpMessagingTemplate) {
         this.service = service;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @MessageMapping(value = "/start")
-    public void findGame(Principal principal){
-        service.findGame(principal.getName()).ifPresent(x -> {
+    public void findGame(Principal principal, FindGameRequest request){
+        service.findGame(principal.getName(), request.getGameType()).ifPresent(x -> {
             simpMessagingTemplate.convertAndSendToUser(x.User1,
                     "queue/game", new FindGameResponse(x.GameId, 1));
             simpMessagingTemplate.convertAndSendToUser(x.User2,
@@ -41,6 +40,5 @@ public class GameController {
         service.getOtherPlayer(turnMessage.getGameId(), principal.getName())
                 .ifPresent(x -> simpMessagingTemplate.convertAndSendToUser(x,
                                 "queue/game/turn", turnMessage));
-
     }
 }

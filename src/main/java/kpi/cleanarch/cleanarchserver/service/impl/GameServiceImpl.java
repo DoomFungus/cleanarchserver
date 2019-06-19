@@ -1,35 +1,34 @@
 package kpi.cleanarch.cleanarchserver.service.impl;
 
-import kpi.cleanarch.cleanarchserver.model.User;
 import kpi.cleanarch.cleanarchserver.repository.GameRepository;
 import kpi.cleanarch.cleanarchserver.model.Game;
 import kpi.cleanarch.cleanarchserver.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
-import java.util.Optional;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class GameServiceImpl implements GameService {
     private GameRepository gameRepository;
 
-    private LinkedBlockingQueue<String> waitingPlayers;
+    private Map<Integer, SortedSet<String>> waitingPlayers;
 
     private AtomicInteger gameIdSequence;
 
     @Autowired
     public GameServiceImpl(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
-        waitingPlayers = new LinkedBlockingQueue<>();
+        waitingPlayers = new HashMap<>();
         gameIdSequence = new AtomicInteger(-1);
     }
 
-    public Optional<Game> findGame(String user){
+    public Optional<Game> findGame(String user, Integer gameType){
         Game game = null;
-        Optional<String> opponent = findOpponent(user);
+        if(!waitingPlayers.containsKey(gameType))
+            waitingPlayers.put(gameType, Collections.synchronizedSortedSet(new TreeSet<>()));
+        Optional<String> opponent = findOpponent(user, gameType);
         if(opponent.isPresent()){
             game = new Game(gameIdSequence.incrementAndGet(), user, opponent.get());
             gameRepository.add(game);
@@ -37,22 +36,19 @@ public class GameServiceImpl implements GameService {
         return Optional.ofNullable(game);
     }
 
-    private Optional<String> findOpponent(String user){
+    private Optional<String> findOpponent(String user, Integer gameType){
         String result = null;
-        if (waitingPlayers.isEmpty()) waitingPlayers.offer(user);
+        SortedSet<String> playerQueue = waitingPlayers.get(gameType);
+        if (playerQueue.isEmpty()) playerQueue.add(user);
         else {
-            try {
-                 result = waitingPlayers.take();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+            result = playerQueue.first();
+            playerQueue.remove(result);}
         return Optional.ofNullable(result);
     }
 
     @Override
     public void removeUserFromQueueIfExists(String username) {
-        waitingPlayers.remove(username);
+        waitingPlayers.forEach((key, value) -> value.remove(username));
     }
 
     @Override

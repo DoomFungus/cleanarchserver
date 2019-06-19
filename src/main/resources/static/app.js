@@ -40,7 +40,7 @@ function disconnect() {
 }
 
 function sendStart() {
-    stompClient.send("/app/game/start", {}, {});
+    stompClient.send("/app/game/start", {}, JSON.stringify({game_type:0}));
 }
 
 function parseJwt (token) {
