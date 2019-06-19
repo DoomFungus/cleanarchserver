@@ -1,5 +1,6 @@
 package kpi.cleanarch.cleanarchserver.service.impl;
 
+import kpi.cleanarch.cleanarchserver.model.User;
 import kpi.cleanarch.cleanarchserver.repository.GameRepository;
 import kpi.cleanarch.cleanarchserver.model.Game;
 import kpi.cleanarch.cleanarchserver.service.GameService;
@@ -52,5 +53,20 @@ public class GameServiceImpl implements GameService {
     @Override
     public void removeUserFromQueueIfExists(String username) {
         waitingPlayers.remove(username);
+    }
+
+    @Override
+    public Optional<String> getOtherPlayer(int gameId, String username) {
+        String user = null;
+        Optional<Game> game = gameRepository.getById(gameId);
+        if(game.isPresent()){
+            if(game.get().User1.equals(username)){
+                user = game.get().User2;
+            }
+            if(game.get().User2.equals(username)){
+                user = game.get().User1;
+            }
+        }
+        return Optional.ofNullable(user);
     }
 }
