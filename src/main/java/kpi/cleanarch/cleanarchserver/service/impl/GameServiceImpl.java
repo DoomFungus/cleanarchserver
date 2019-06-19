@@ -40,7 +40,7 @@ public class GameServiceImpl implements GameService {
         String result = null;
         SortedSet<String> playerQueue = waitingPlayers.get(gameType);
         if (playerQueue.isEmpty()) playerQueue.add(user);
-        else {
+        else if (!playerQueue.first().equals(user)) {
             result = playerQueue.first();
             playerQueue.remove(result);}
         return Optional.ofNullable(result);
