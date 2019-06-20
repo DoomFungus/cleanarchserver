@@ -1,15 +1,19 @@
 var stompClient = null;
+var gameId;
 
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
     $("#disconnect").prop("disabled", !connected);
-    if (connected) {
-        $("#conversation").show();
+    $("#turns").html("");
+}
+
+function updateTurns(turn) {
+    if (turn) {
+        $("#turn-input").show();
     }
     else {
-        $("#conversation").hide();
+        $("#turn-input").hide();
     }
-    $("#greetings").html("");
 }
 
 function connect() {
@@ -25,7 +29,12 @@ function connect() {
                 console.log('Connected: ' + frame);
                 console.log(stompClient.ws._transport.url);
                 stompClient.subscribe('/user/'+parseJwt(data.token).sub+'/queue/game', function (game) {
-                    alert((JSON.parse(game.body)).response);
+                    gameId = (JSON.parse(game.body)).response;
+                    updateTurns((JSON.parse(game.body)).turn_order === 0);
+                });
+                stompClient.subscribe('/user/'+parseJwt(data.token).sub+'/queue/game/turn', function (turn){
+                    updateTurns(true);
+                    onTurn("Opponent: ", JSON.parse(turn.body).turn);
                 });
             })
         });
@@ -41,6 +50,16 @@ function disconnect() {
 
 function sendStart() {
     stompClient.send("/app/game/start", {}, JSON.stringify({game_type:0}));
+}
+
+function sendTurn(sentTurn) {
+    stompClient.send("/app/game/turn", {}, JSON.stringify({game_id:gameId, turn:sentTurn}));
+    onTurn("Me: ", sentTurn);
+    updateTurns(false);
+}
+
+function onTurn(startString, turn){
+    $("#turns").append("<div class=\"row\">"+startString+turn+"</div>")
 }
 
 function parseJwt (token) {
@@ -60,5 +79,6 @@ $(function () {
     });
     $( "#connect" ).click(function() { connect(); });
     $( "#disconnect" ).click(function() { disconnect(); });
-    $( "#send" ).click(function() { sendStart(); });
+    $( "#StartGame" ).click(function() { sendStart(); });
+    $("#sendTurn").click(function () {sendTurn($("#turn").val());});
 });
