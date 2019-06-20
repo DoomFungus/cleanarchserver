@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class FindGameRequest {
-    @JsonProperty("username")
-    private String username;
+    @JsonProperty("game_type")
+    private Integer gameType;
 }
