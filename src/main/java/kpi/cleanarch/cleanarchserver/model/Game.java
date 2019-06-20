@@ -1,7 +1,9 @@
 package kpi.cleanarch.cleanarchserver.model;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Game {
     public final Integer gameId;
@@ -14,23 +16,19 @@ public class Game {
         currentUserTurn = 0;
     }
 
-    public boolean makeTurnIfCurrentUser(String username) {
-        if(users.get(currentUserTurn).equals(username)){
-            currentUserTurn = currentUserTurn==users.size()-1?0:currentUserTurn+1;
-            return true;
-        }
-        return false;
+    public boolean isCurrentUser(String username){
+        return users.get(currentUserTurn).equals(username);
     }
 
-    public String getUserWhoseTurn(){
-        return users.get(currentUserTurn);
+    public void makeTurn() {
+        currentUserTurn = currentUserTurn==users.size()-1?0:currentUserTurn+1;
     }
 
-    public String getPlayerByIndex(int index){
-        return users.get(index);
+    public List<String> getAllPlayersExceptSent(String username){
+        return users.stream().filter(x -> !x.equals(username)).collect(Collectors.toList());
     }
 
-    public int getPlayerCount(){
-        return users.size();
+    public List<String> getAllPlayers(){
+        return new ArrayList<>(users);
     }
 }

@@ -15,7 +15,7 @@ public class GameRepositoryHashMap implements GameRepository {
 
     @Override
     public Optional<Game> getById(int id) {
-        return Optional.of(games.get(id));
+        return Optional.ofNullable(games.get(id));
     }
 
     @Override

@@ -4,6 +4,7 @@ import kpi.cleanarch.cleanarchserver.model.Game;
 import kpi.cleanarch.cleanarchserver.model.User;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 public interface GameService {
@@ -11,5 +12,9 @@ public interface GameService {
 
     void removeUserFromQueueIfExists(String username);
 
-    Optional<String> getOtherPlayer(int gameId, String username);
+    List<String> onTurn(int gameId, String username);
+
+    List<String> onEnd(int gameId, String username);
+
+    void removeGame(int gameId);
 }

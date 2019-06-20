@@ -1,9 +1,9 @@
 package kpi.cleanarch.cleanarchserver.controller;
 
+import kpi.cleanarch.cleanarchserver.messages.EndRequest;
 import kpi.cleanarch.cleanarchserver.messages.FindGameRequest;
 import kpi.cleanarch.cleanarchserver.messages.FindGameResponse;
 import kpi.cleanarch.cleanarchserver.messages.TurnMessage;
-import kpi.cleanarch.cleanarchserver.security.JwtProvider;
 import kpi.cleanarch.cleanarchserver.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -11,7 +11,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
-import java.util.Optional;
+import java.util.List;
 
 @Controller
 @MessageMapping(value = "/game")
@@ -28,8 +28,9 @@ public class GameController {
     @MessageMapping(value = "/start")
     public void findGame(Principal principal, FindGameRequest request){
         service.findGame(principal.getName(), request.getGameType()).ifPresent(x -> {
-            for (int i = 0; i < x.getPlayerCount(); i++) {
-                simpMessagingTemplate.convertAndSendToUser(x.getPlayerByIndex(i),
+            List<String> recipients = x.getAllPlayers();
+            for (int i = 0; i < recipients.size(); i++) {
+                simpMessagingTemplate.convertAndSendToUser(recipients.get(i),
                         "queue/game", new FindGameResponse(x.gameId, i));
             }
         });
@@ -37,8 +38,16 @@ public class GameController {
 
     @MessageMapping(value = "/turn")
     public void takeTurn(Principal principal, TurnMessage turnMessage){
-        service.getOtherPlayer(turnMessage.getGameId(), principal.getName())
-                .ifPresent(x -> simpMessagingTemplate.convertAndSendToUser(x,
-                                "queue/game/turn", turnMessage));
+        service.onTurn(turnMessage.getGameId(), principal.getName())
+                .forEach(x -> simpMessagingTemplate.convertAndSendToUser(
+                        x,"queue/game/turn", turnMessage));
+    }
+
+    @MessageMapping(value = "/end")
+    public void endGame(Principal principal, EndRequest endRequest){
+        service.onEnd(endRequest.getGameId(), principal.getName())
+                .forEach(x -> simpMessagingTemplate.convertAndSendToUser(
+                        x,"queue/game/end", endRequest));
+        service.removeGame(endRequest.getGameId());
     }
 }

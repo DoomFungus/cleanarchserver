@@ -52,14 +52,28 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Optional<String> getOtherPlayer(int gameId, String username) {
-        String user = null;
+    public List<String> onTurn(int gameId, String username) {
         Optional<Game> game = gameRepository.getById(gameId);
         if(game.isPresent()){
-            if(game.get().makeTurnIfCurrentUser(username)){
-                user = game.get().getUserWhoseTurn();
+            if(game.get().isCurrentUser(username)){
+                game.get().makeTurn();
+                return game.get().getAllPlayersExceptSent(username);
             }
         }
-        return Optional.ofNullable(user);
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<String> onEnd(int gameId, String username) {
+        Optional<Game> game = gameRepository.getById(gameId);
+        if(game.isPresent()){
+            return game.get().getAllPlayersExceptSent(username);
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public void removeGame(int gameId) {
+        gameRepository.removeById(gameId);
     }
 }

@@ -26,17 +26,22 @@
         </div>
         <div class="col-md-3">
             <form class="form-inline">
-                <button id="StartGame" class="btn btn-default" type="submit">Start Game</button>
+                <button id="StartGame" class="btn btn-default" type="submit" disabled="true">Start Game</button>
+            </form>
+        </div>
+        <div class="col-md-3">
+            <form class="form-inline">
+                <button id="EndGame" class="btn btn-default" type="submit" disabled="true">End Game</button>
             </form>
         </div>
     </div>
-    <div class="row" hidden='true' id="turn-input">
+    <div class="row">
         <div class="col-md-12">
             <form class="form-inline">
                 <div class="form-group">
                     <label for="turn">Please enter your turn</label>
                     <input type="text" id="turn" class="form-control" placeholder="Your turn here...">
-                    <button id="sendTurn" class="btn btn-default" type="submit">Send</button>
+                    <button id="sendTurn" class="btn btn-default" type="submit" disabled="true">Send</button>
                 </div>
             </form>
         </div>
