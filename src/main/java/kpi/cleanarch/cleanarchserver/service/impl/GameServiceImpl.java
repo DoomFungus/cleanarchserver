@@ -30,7 +30,7 @@ public class GameServiceImpl implements GameService {
             waitingPlayers.put(gameType, Collections.synchronizedSortedSet(new TreeSet<>()));
         Optional<String> opponent = findOpponent(user, gameType);
         if(opponent.isPresent()){
-            game = new Game(gameIdSequence.incrementAndGet(), user, opponent.get());
+            game = new Game(gameIdSequence.incrementAndGet(), Arrays.asList(user, opponent.get()));
             gameRepository.add(game);
         }
         return Optional.ofNullable(game);
@@ -56,11 +56,8 @@ public class GameServiceImpl implements GameService {
         String user = null;
         Optional<Game> game = gameRepository.getById(gameId);
         if(game.isPresent()){
-            if(game.get().User1.equals(username)){
-                user = game.get().User2;
-            }
-            if(game.get().User2.equals(username)){
-                user = game.get().User1;
+            if(game.get().makeTurnIfCurrentUser(username)){
+                user = game.get().getUserWhoseTurn();
             }
         }
         return Optional.ofNullable(user);

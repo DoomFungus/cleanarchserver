@@ -28,10 +28,10 @@ public class GameController {
     @MessageMapping(value = "/start")
     public void findGame(Principal principal, FindGameRequest request){
         service.findGame(principal.getName(), request.getGameType()).ifPresent(x -> {
-            simpMessagingTemplate.convertAndSendToUser(x.User1,
-                    "queue/game", new FindGameResponse(x.GameId, 1));
-            simpMessagingTemplate.convertAndSendToUser(x.User2,
-                    "queue/game", new FindGameResponse(x.GameId, 2));
+            for (int i = 0; i < x.getPlayerCount(); i++) {
+                simpMessagingTemplate.convertAndSendToUser(x.getPlayerByIndex(i),
+                        "queue/game", new FindGameResponse(x.gameId, i));
+            }
         });
     }
 

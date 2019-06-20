@@ -20,7 +20,7 @@ public class GameRepositoryHashMap implements GameRepository {
 
     @Override
     public void add(Game item) {
-        games.put(item.GameId, item);
+        games.put(item.gameId, item);
     }
 
     @Override
