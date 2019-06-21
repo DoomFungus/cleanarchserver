@@ -13,12 +13,12 @@ $(function () {
 });
 
 function connect() {
-    fetch('http://localhost:80/signin', {
+    fetch('https://cleanarchserver.herokuapp.com/signin', {
         method: 'POST'}
     )
         .then(function (response) { return response.json() })
         .then(function (data){
-            var socket = new SockJS('http://localhost:80/stomp?token='+data.token);
+            var socket = new SockJS('https://cleanarchserver.herokuapp.com/stomp?token='+data.token);
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 setConnected(true);
